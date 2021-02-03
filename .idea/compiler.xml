@@ -9,5 +9,10 @@
         <module name="TestMaven" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="tribot-client" target="15" />
+      <module name="tribot-client.main" target="15" />
+      <module name="tribot-client.test" target="15" />
+    </bytecodeTargetLevel>
   </component>
 </project>

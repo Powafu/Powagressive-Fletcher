@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Unnamed" type="JarApplication" singleton="false" nameIsGenerated="true">
+    <option name="JAR_PATH" value="$USER_HOME$/Downloads/tribot-client-12.0.1-rc-5.jar" />
+    <option name="WORKING_DIRECTORY" value="C:\Users\Marcus\IdeaProjects\Powagressive-Fletcher" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <option name="ALTERNATIVE_JRE_PATH" value="15" />
+    <method v="2" />
+  </configuration>
+</component>
