@@ -13,7 +13,7 @@ import java.awt.Graphics
 
 import kotlin.random.Random
 
-@ScriptManifest(authors = ["Powa", "IM4EVER12C"], category = "Fletching", name = "Powagressive Open Source Fletcher")
+@ScriptManifest(authors = ["Powa", "IM4EVER12C"], category = "Fletching", name = "Powa's OSS Fletcher")
 class Powagressive : Script(), Painting {
     private var shouldRun = true
     private val startTime = System.currentTimeMillis()
@@ -62,7 +62,7 @@ class Powagressive : Script(), Painting {
         g.fillRect(5, 250, 510, 90)
         g.color = myColour2
         g.font = Font("Calibri", Font.BOLD, 24)
-        g.drawString("Powagressive Open Source Fletcher", 20, 280)
+        g.drawString("Powa's OSS Fletcher", 20, 280)
         g.font = Font("Calibri", Font.BOLD, 16)
         g.color = Color.yellow
         g.drawString("| Bows Fletched: $amountCut", 280, 315)
