@@ -1,6 +1,7 @@
 package scripts
 
 import org.tribot.api.Timing
+import org.tribot.api.input.Keyboard
 import org.tribot.api2007.*
 import org.tribot.api2007.Skills.SKILLS
 import org.tribot.script.Script
@@ -9,7 +10,8 @@ import org.tribot.script.interfaces.Painting
 import java.awt.Color
 import java.awt.Font
 import java.awt.Graphics
-import java.lang.Math.random
+
+import kotlin.random.Random
 
 @ScriptManifest(authors = ["Powa", "IM4EVER12C"], category = "Fletching", name = "Powagressive Fletcher")
 class Powagressive : Script(), Painting {
@@ -20,13 +22,10 @@ class Powagressive : Script(), Painting {
     private var amountCut = 0
     private var logCounter = 0
     private val Bs = "Bow string"
-    private val BsA = "Bow string ->"
     private val knife = "Knife"
-    private val knifeA = "Knife ->"
-    private var afkTicks = 0
     private var rand = (25..199).random().toLong()
-    private var randLonger = (10000..12000).random().toLong()
     private var fLvl = Skills.getActualLevel(SKILLS.FLETCHING)
+
     private var log = arrayOf(
             "Logs",
             "Longbow (u)",
@@ -72,7 +71,6 @@ class Powagressive : Script(), Painting {
                 + (SKILLS.FLETCHING.actualLevel - fletchingLevelBefore) + ")", 10, 300)
         g.drawString("| Experience Gained: " + gainedXp(), 280, 300)
         g.drawString("| Time Elapsed: " + Timing.msToString(timeRan), 10, 330)
-        g.drawString(afkTicks.toString(), 5, 25)
     }
 
     override fun run() {
@@ -94,13 +92,6 @@ class Powagressive : Script(), Painting {
 
     }
 
-    private fun gainedXp(): Int {
-        if (fletchingExpBefore < 1) {
-            fletchingExpBefore = SKILLS.FLETCHING.xp
-        }
-        return SKILLS.FLETCHING.xp - fletchingExpBefore
-    }
-
     private fun gainedLevel(): Int {
         var flvlCurrent = SKILLS.FLETCHING.actualLevel
         if (fLvl < flvlCurrent) {
@@ -109,8 +100,15 @@ class Powagressive : Script(), Painting {
         return fLvl
     }
 
+    private fun gainedXp(): Int {
+        if (fletchingExpBefore < 1) {
+            fletchingExpBefore = SKILLS.FLETCHING.xp
+        }
+        return SKILLS.FLETCHING.xp - fletchingExpBefore
+    }
+
     private fun bowType(): String {
-        return when (gainedLevel()) {
+        return when (fLvl) {
             in 0..9 -> bowToFletch[0]
             in 10..19 -> bowToFletch[1]
             in 20..24 -> bowToFletch[2]
@@ -123,11 +121,10 @@ class Powagressive : Script(), Painting {
             in 85..99 -> bowToFletch[9]
             else -> "You're not in runescape anymore"
         }
-
     }
 
     private fun logType(): String {
-        return when (gainedLevel()) {
+        return when (fLvl) {
             in 0..9 -> log[0]
             in 10..19 -> log[1]
             in 20..24 -> log[2]
@@ -147,21 +144,20 @@ class Powagressive : Script(), Painting {
             if (Inventory.getCount(logType()) < 1) {
                 if (gainedLevel() < 10) {
                     if (!Banking.isBankLoaded()) {
-                        Banking.openBankBanker()
+                        Banking.openBank()
                     } else {
                         Banking.depositAllExcept(knife)
                         if (Inventory.getCount(logType()) < 1) {
                             if (Banking.find(logType()).isNotEmpty()) {
                                 Banking.withdraw(27, logType())
-                                sleep(rand)
                             } else {
                                 errorMessage()
                             }
                         }
+
                         if (Inventory.getCount(knife) < 1) {
                             if (Banking.find(knife).isNotEmpty()) {
                                 Banking.withdraw(1, knife)
-                                sleep(rand)
                             } else {
                                 errorMessage()
                             }
@@ -184,17 +180,14 @@ class Powagressive : Script(), Painting {
                         if (Inventory.getCount(Bs) < 1) {
                             if (Banking.find(Bs).isNotEmpty()) {
                                 Banking.withdraw(14, Bs)
-                                sleep(rand)
+
                             } else {
                                 errorMessage()
                             }
                         }
                     }
                 }
-            } else if (!Banking.isBankLoaded()) {
-                Banking.close()
             }
-            sleep(randLonger)
         } else {
             errorMessage()
         }
@@ -202,87 +195,87 @@ class Powagressive : Script(), Painting {
 
     private fun cutting() {
         if (Banking.isInBank()) {
+
+
             if (gainedLevel() < 10) {
                 if (Inventory.getCount(logType()) >= 1 && Inventory.getCount(knife) >= 1) {
+
+                    var myKnife = Inventory.find(knife)
+                    var myLogType = Inventory.find(logType())
+                    var myKnifeCount = Inventory.getCount(knife)
+                    var myLogTypeCount = Inventory.getCount(logType())
+
                     if (Banking.isBankLoaded()) {
                         Banking.close()
-                 }
-                    val myKnife = Inventory.find(knife)
-                    val myLogType = Inventory.find(logType())
-                    if (Player.getAnimation() == -1) {
-                        if (knifeA !in Game.getUptext() && !Interfaces.isInterfaceValid(270)) {
-                            myKnife[0].click("Use")
-                        }
-
-                        if (knifeA in Game.getUptext() && !Interfaces.isInterfaceValid(270)) {
-                            val nxt: Int
-                            val amt: Int = Inventory.getCount(logType())
-                            nxt = (random() * (amt - 0)).toInt()
-                            println(amt)
-                            println(nxt)
-                            myLogType[nxt].click()
-                        }
-                        Timing.waitCondition({ Interfaces.get(270) != null }, rand)
-
-                        if (Interfaces.isInterfaceSubstantiated(270, 16)) {
-                            val rsInterfaceChildOption1 = Interfaces.get(270, 14)
-                            val rsInterfaceChildOption2 = Interfaces.get(270, 15)
-                            val rsInterfaceChildOption3 = Interfaces.get(270, 16)
-                            val rsInterfaceChildOption4 = Interfaces.get(270, 17)
-                            val rsInterfaceChildOption5 = Interfaces.get(270, 18)
-                            when {
-                                bowType() in rsInterfaceChildOption1.componentName -> rsInterfaceChildOption1.click()
-                                bowType() in rsInterfaceChildOption2.componentName -> rsInterfaceChildOption2.click()
-                                bowType() in rsInterfaceChildOption3.componentName -> rsInterfaceChildOption3.click()
-                                bowType() in rsInterfaceChildOption4.componentName -> rsInterfaceChildOption4.click()
-                                bowType() in rsInterfaceChildOption5.componentName -> rsInterfaceChildOption5.click()
-                                else -> errorMessage()
-                            }
-                            sleep(randLonger)
-                        }
-                        sleep(randLonger)
                     }
+
+                    while (!Interfaces.isInterfaceSubstantiated(270)) {
+                        when (myKnife[0].isClickable) {
+                            true -> myKnife[0].click() && myLogType[0].click()
+                            else -> myLogType[0].click("Use")
+                        }
+                        sleep(1000,1600)
+                    }
+
+                    when (Timing.waitCondition({ Interfaces.isInterfaceSubstantiated(270) }, Random.nextLong(400, 600))) {
+                        true -> Keyboard.sendPress(' ', 32)
+                    }
+
+                    while (Inventory.getCount(logType()) > 0) {
+                        when {
+                            myLogTypeCount == 0 -> break
+                            myKnifeCount == 0 -> break
+                            !Inventory.open() -> break
+                            Interfaces.isInterfaceSubstantiated(233) -> break
+                            else -> sleep(rand)
+                        }
+                        myLogTypeCount = Inventory.getCount(logType())
+                        myKnifeCount = Inventory.getCount(knife)
+                        sleep(1000,1600)
+                    }
+
                 } else {
-                    gainedLevel()
                     bankProcess()
                 }
             }
+
             if (gainedLevel() >= 10) {
                 if (Inventory.getCount(logType()) >= 1 && Inventory.getCount(Bs) >= 1) {
+                    var myLogType = Inventory.find(logType())
+                    var myBs = Inventory.find(Bs)
+                    var myLogTypeCount = Inventory.getCount(logType())
+                    var myBsCount = Inventory.getCount(Bs)
+
                     if (Banking.isBankLoaded()) {
                         Banking.close()
                     }
-                    val myBs = Inventory.find(Bs)
-                    val myLogType = Inventory.find(logType())
-                    if (Player.getAnimation() == -1) {
-                        if (BsA !in Game.getUptext() && !Interfaces.isInterfaceValid(270)) {
-                            myBs[0].click("Use")
-                        }
 
-                        if (BsA in Game.getUptext() && !Interfaces.isInterfaceValid(270)) {
-                            myLogType[0].click("Use")
+                    while (!Interfaces.isInterfaceSubstantiated(270)) {
+                        when (myBs[0].isClickable) {
+                            true -> myBs[0].click() && myLogType[0].click()
+                            else -> myLogType[0].click("Use")
                         }
-
-                        if (Interfaces.isInterfaceSubstantiated(270, 16)) {
-                            val rsInterfaceChildOption1 = Interfaces.get(270, 14)
-                            val rsInterfaceChildOption2 = Interfaces.get(270, 15)
-                            val rsInterfaceChildOption3 = Interfaces.get(270, 16)
-                            val rsInterfaceChildOption4 = Interfaces.get(270, 17)
-                            val rsInterfaceChildOption5 = Interfaces.get(270, 18)
-                            when {
-                                bowType() in rsInterfaceChildOption1.componentName -> rsInterfaceChildOption1.click()
-                                bowType() in rsInterfaceChildOption2.componentName -> rsInterfaceChildOption2.click()
-                                bowType() in rsInterfaceChildOption3.componentName -> rsInterfaceChildOption3.click()
-                                bowType() in rsInterfaceChildOption4.componentName -> rsInterfaceChildOption4.click()
-                                bowType() in rsInterfaceChildOption5.componentName -> rsInterfaceChildOption5.click()
-                                else -> errorMessage()
-                            }
-                            sleep(randLonger)
-                        }
-                        sleep(randLonger)
+                        sleep(1000,1600)
                     }
+
+                    when (Timing.waitCondition({ Interfaces.isInterfaceSubstantiated(270) }, Random.nextLong(400, 600))) {
+                        true -> Keyboard.sendPress(' ', 32)
+                    }
+
+                    while (Inventory.getCount(bowType()) < 14) {
+                        when {
+                            myLogTypeCount == 0 -> break
+                            myBsCount == 0 -> break
+                            !Inventory.open() -> break
+                            Interfaces.isInterfaceSubstantiated(233) -> break
+                            else -> sleep(rand)
+                        }
+                        myLogTypeCount = Inventory.getCount(logType())
+                        myBsCount = Inventory.getCount(Bs)
+                        sleep(1000,1600)
+                    }
+
                 } else {
-                    gainedLevel()
                     bankProcess()
                 }
             }
@@ -308,6 +301,9 @@ class Powagressive : Script(), Painting {
             } else if (Inventory.getCount(Powagressive().knife) < 1) {
                 println("No knife found. Stopping script.")
                 false
+            } else if (Inventory.getCount(Powagressive().Bs) < 1) {
+                println("No bow strings found. Stopping script.")
+                false
             } else {
                 println("Unknown Error")
                 false
@@ -315,4 +311,3 @@ class Powagressive : Script(), Painting {
         }
     }
 }
-
