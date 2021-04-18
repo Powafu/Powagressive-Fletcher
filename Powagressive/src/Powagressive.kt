@@ -10,7 +10,6 @@ import org.tribot.script.interfaces.Painting
 import java.awt.Color
 import java.awt.Font
 import java.awt.Graphics
-
 import kotlin.random.Random
 
 @ScriptManifest(authors = ["Powa", "IM4EVER12C"], category = "Fletching", name = "Powa's OSS Fletcher")
@@ -141,144 +140,65 @@ class Powagressive : Script(), Painting {
 
     private fun bankProcess() {
         if (Banking.isInBank()) {
-            if (Inventory.getCount(logType()) < 1) {
-                if (gainedLevel() < 10) {
-                    if (!Banking.isBankLoaded()) {
-                        Banking.openBank()
-                    } else {
-                        Banking.depositAllExcept(knife)
-                        if (Inventory.getCount(logType()) < 1) {
-                            if (Banking.find(logType()).isNotEmpty()) {
-                                Banking.withdraw(27, logType())
-                            } else {
-                                errorMessage()
-                            }
-                        }
-
-                        if (Inventory.getCount(knife) < 1) {
-                            if (Banking.find(knife).isNotEmpty()) {
-                                Banking.withdraw(1, knife)
-                            } else {
-                                errorMessage()
-                            }
-                        }
-                    }
-                }
-                if (gainedLevel() >= 10) {
-                    if (!Banking.isBankLoaded()) {
-                        Banking.openBankBanker()
-                    } else {
-                        Banking.depositAll()
-                        if (Inventory.getCount(logType()) < 1) {
-                            if (Banking.find(logType()).isNotEmpty()) {
-                                Banking.withdraw(14, logType())
-                                sleep(rand)
-                            } else {
-                                errorMessage()
-                            }
-                        }
-                        if (Inventory.getCount(Bs) < 1) {
-                            if (Banking.find(Bs).isNotEmpty()) {
-                                Banking.withdraw(14, Bs)
-
-                            } else {
-                                errorMessage()
-                            }
-                        }
-                    }
-                }
+            if (!Banking.isBankLoaded()) {
+                Banking.openBank()
             }
-        } else {
-            errorMessage()
+            Banking.depositAll()
+            if (gainedLevel() < 10) {
+                if (Inventory.getCount(logType()) < 1 && Banking.find(logType()).isNotEmpty()) { Banking.withdraw(27, logType()) }
+                if (Inventory.getCount(knife) < 1 && Banking.find(knife).isNotEmpty()) { Banking.withdraw(1, knife) }
+                else errorMessage()
+            }
+            if (gainedLevel() >= 10) {
+                if (Inventory.getCount(logType()) < 1 && Banking.find(logType()).isNotEmpty()) { Banking.withdraw(14, logType()) }
+                if (Inventory.getCount(Bs) < 1 && Banking.find(Bs).isNotEmpty()) { Banking.withdraw(14, Bs) }
+                else errorMessage()
+            }
+        } else errorMessage()
+    }
+
+    private fun whenCut() {
+        val myKnifeCount = Inventory.getCount(knife)
+        val myLogTypeCount = Inventory.getCount(logType())
+        val myBsCount = Inventory.getCount(Bs)
+
+        when {
+            gainedLevel() < 10 && myKnifeCount >= 1 && myLogTypeCount >= 1 -> howCut()
+            gainedLevel() >= 10 && myBsCount >= 1 && myLogTypeCount >= 1 -> howCut()
+            else -> bankProcess()
+        }
+    }
+
+    private fun howCut() {
+        val myKnife = Inventory.find(knife)
+        val myBs = Inventory.find(Bs)
+        val myLogType = Inventory.find(logType())
+
+        while (!Interfaces.isInterfaceSubstantiated(270)) {
+            if (gainedLevel() < 10 && myKnife.isNotEmpty() && myLogType.isNotEmpty()) { myKnife[0].click() && myLogType[0].click() }
+            if (gainedLevel() >= 10 && myBs.isNotEmpty() && myLogType.isNotEmpty()) { myBs[0].click() && myLogType[0].click() }
+            sleep(1000,1600)
+        }
+
+        if (Timing.waitCondition({ Interfaces.isInterfaceSubstantiated(270) }, Random.nextLong(400, 600))) { Keyboard.sendPress(' ', 32) }
+
+        while (Inventory.getCount(logType()) > 0) {
+            when {
+                Inventory.getCount(logType()) == 0 -> break
+                gainedLevel() < 10 && Inventory.getCount(knife) == 0 -> break
+                Inventory.getCount(Bs) == 0 -> break
+                !Inventory.open() -> break
+                Interfaces.isInterfaceSubstantiated(233) -> break
+                else -> sleep(rand)
+            }
+            sleep(1000,1600)
         }
     }
 
     private fun cutting() {
         if (Banking.isInBank()) {
-
-
-            if (gainedLevel() < 10) {
-                if (Inventory.getCount(logType()) >= 1 && Inventory.getCount(knife) >= 1) {
-
-                    var myKnife = Inventory.find(knife)
-                    var myLogType = Inventory.find(logType())
-                    var myKnifeCount = Inventory.getCount(knife)
-                    var myLogTypeCount = Inventory.getCount(logType())
-
-                    if (Banking.isBankLoaded()) {
-                        Banking.close()
-                    }
-
-                    while (!Interfaces.isInterfaceSubstantiated(270)) {
-                        when (myKnife[0].isClickable) {
-                            true -> myKnife[0].click() && myLogType[0].click()
-                            else -> myLogType[0].click("Use")
-                        }
-                        sleep(1000,1600)
-                    }
-
-                    when (Timing.waitCondition({ Interfaces.isInterfaceSubstantiated(270) }, Random.nextLong(400, 600))) {
-                        true -> Keyboard.sendPress(' ', 32)
-                    }
-
-                    while (Inventory.getCount(logType()) > 0) {
-                        when {
-                            myLogTypeCount == 0 -> break
-                            myKnifeCount == 0 -> break
-                            !Inventory.open() -> break
-                            Interfaces.isInterfaceSubstantiated(233) -> break
-                            else -> sleep(rand)
-                        }
-                        myLogTypeCount = Inventory.getCount(logType())
-                        myKnifeCount = Inventory.getCount(knife)
-                        sleep(1000,1600)
-                    }
-
-                } else {
-                    bankProcess()
-                }
-            }
-
-            if (gainedLevel() >= 10) {
-                if (Inventory.getCount(logType()) >= 1 && Inventory.getCount(Bs) >= 1) {
-                    var myLogType = Inventory.find(logType())
-                    var myBs = Inventory.find(Bs)
-                    var myLogTypeCount = Inventory.getCount(logType())
-                    var myBsCount = Inventory.getCount(Bs)
-
-                    if (Banking.isBankLoaded()) {
-                        Banking.close()
-                    }
-
-                    while (!Interfaces.isInterfaceSubstantiated(270)) {
-                        when (myBs[0].isClickable) {
-                            true -> myBs[0].click() && myLogType[0].click()
-                            else -> myLogType[0].click("Use")
-                        }
-                        sleep(1000,1600)
-                    }
-
-                    when (Timing.waitCondition({ Interfaces.isInterfaceSubstantiated(270) }, Random.nextLong(400, 600))) {
-                        true -> Keyboard.sendPress(' ', 32)
-                    }
-
-                    while (Inventory.getCount(bowType()) < 14) {
-                        when {
-                            myLogTypeCount == 0 -> break
-                            myBsCount == 0 -> break
-                            !Inventory.open() -> break
-                            Interfaces.isInterfaceSubstantiated(233) -> break
-                            else -> sleep(rand)
-                        }
-                        myLogTypeCount = Inventory.getCount(logType())
-                        myBsCount = Inventory.getCount(Bs)
-                        sleep(1000,1600)
-                    }
-
-                } else {
-                    bankProcess()
-                }
-            }
+            if (Banking.isBankLoaded()) { Banking.close() }
+            whenCut()
         } else {
             errorMessage()
         }
