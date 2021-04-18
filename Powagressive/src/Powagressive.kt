@@ -13,7 +13,7 @@ import java.awt.Graphics
 
 import kotlin.random.Random
 
-@ScriptManifest(authors = ["Powa", "IM4EVER12C"], category = "Fletching", name = "Powagressive Fletcher")
+@ScriptManifest(authors = ["Powa", "IM4EVER12C"], category = "Fletching", name = "Powagressive Open Source Fletcher")
 class Powagressive : Script(), Painting {
     private var shouldRun = true
     private val startTime = System.currentTimeMillis()
