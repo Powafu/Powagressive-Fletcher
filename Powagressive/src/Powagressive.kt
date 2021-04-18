@@ -26,7 +26,7 @@ class Powagressive : Script(), Painting {
     private var fLvl = Skills.getActualLevel(SKILLS.FLETCHING)
 
     enum class Bow(private val lvl: Int, val material: String, val product: String) {
-        LOGS(1,  "Logs", "arrow shafts"),
+        LOGS(1,  "Logs", "arrow shaft"),
         LONGBOW(10,  "Longbow (u)", "Longbow"),
         OAK_SHORT(20,  "Oak shortbow (u)", "Oak shortbow"),
         OAK_LONG(25,  "Oak longbow (u)", "Oak longbow"),
@@ -110,8 +110,9 @@ class Powagressive : Script(), Painting {
 
     private fun bankProcess() {
         if (Banking.isInBank()) {
-            if (!Banking.isBankLoaded()) {
+            while (!Banking.isBankLoaded()) {
                 Banking.openBank()
+                Camera.setCameraRotation(45)
             }
             Banking.depositAll()
             if (gainedLevel() < 10) {
@@ -148,7 +149,7 @@ class Powagressive : Script(), Painting {
             when {
                 Inventory.getCount(Bow.targetBow.material) == 0 -> break
                 gainedLevel() < 10 && Inventory.getCount(knife) == 0 -> break
-                Inventory.getCount(Bs) == 0 -> break
+                gainedLevel() >= 10 && Inventory.getCount(Bs) == 0 -> break
                 Interfaces.isInterfaceSubstantiated(233) -> break
                 else -> sleep(rand)
             }
@@ -158,7 +159,10 @@ class Powagressive : Script(), Painting {
 
     private fun cutting() {
         if (Banking.isInBank()) {
-            if (Banking.isBankLoaded()) { Banking.close() }
+            if (Banking.isBankLoaded()) {
+                Banking.close()
+                Inventory.open()
+            }
             whenCut()
         } else {
             errorMessage()
